@@ -17,7 +17,6 @@ void PropertyPanel::setLayerType(const QString& type)
     currentLayerType = type;
 }
 
-
 void PropertyPanel::setParameters(const QMap<QString, QString>& params) {
     // 完全清除所有旧参数行（包括标签和输入框）
     QLayoutItem* child;

@@ -84,5 +84,12 @@
         <file>Icon/theme-white.png</file>
         <file>Icon/theme-yellow.png</file>
         <file>Icon/history.png</file>
+        <file>Icon/resource-blue.png</file>
+        <file>Icon/resource-green.png</file>
+        <file>Icon/resource-grey.png</file>
+        <file>Icon/resource-pink.png</file>
+        <file>Icon/resource-purple.png</file>
+        <file>Icon/resource-white.png</file>
+        <file>Icon/resource-yellow.png</file>
     </qresource>
 </RCC>

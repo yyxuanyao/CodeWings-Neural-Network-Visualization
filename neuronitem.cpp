@@ -50,4 +50,3 @@ void NeuronItem::updateColors() {
     m_label->setDefaultTextColor(theme.text);
 }
 
-

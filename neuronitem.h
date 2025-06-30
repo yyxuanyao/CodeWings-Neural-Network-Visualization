@@ -1,7 +1,7 @@
-#ifndef NEURONITEM_H
-#define NEURONITEM_H
+#pragma once
 #include <QGraphicsEllipseItem>
 #include <QGraphicsTextItem>
+#include <QBrush>
 #include "connectionitem.h"
 
 class NeuronItem : public QGraphicsEllipseItem {
@@ -19,6 +19,3 @@ private:
     QList<ConnectionItem*> m_outgoingConnections;
     QList<ConnectionItem*> m_incomingConnections;
 };
-
-
-#endif // NEURONITEM_H

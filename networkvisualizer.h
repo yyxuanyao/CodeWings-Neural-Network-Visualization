@@ -2,9 +2,9 @@
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include "neuronitem.h"
+#include "backend.h"
 #include "movablelayergroup.h"
 #include "connectionitem.h"
-#include "backend.h"
 #include <QGraphicsScene>
 #include <QGraphicsItemGroup>
 #include <QGraphicsRectItem>
@@ -12,8 +12,6 @@
 #include <QGraphicsTextItem>
 #include <QPen>
 #include <QBrush>
-
-
 
 class NetworkVisualizer : public QGraphicsView {
     Q_OBJECT
@@ -35,22 +33,21 @@ protected:
     void dropEvent(QDropEvent* event) override;
 
 
-
 private:
     QGraphicsScene* m_scene;
     QList<NeuralLayer> m_layers;
     QGraphicsItem* m_dragItem = nullptr;
     QPointF m_dragStartPos;
     QVector<QVector<NeuronItem*>> m_allNeurons; // 存储神经元指针以便更新
+    //QList<QGraphicsItemGroup*> m_layerGroups;
     QList<MovableLayerGroup*> m_layerGroups;
     struct ConnectionLine {
-         QGraphicsLineItem* line;
-         QGraphicsItemGroup* fromGroup;
-         QGraphicsItemGroup* toGroup;
+        QGraphicsLineItem* line;
+        QGraphicsItemGroup* fromGroup;
+        QGraphicsItemGroup* toGroup;
     };
 
     QList<ConnectionLine> m_connections;
 private slots:
     void updateConnections();
-
 };

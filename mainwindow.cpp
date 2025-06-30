@@ -5,6 +5,7 @@
 #include "propertypanel.h"
 #include "networkvisualizer.h"
 #include "matrial.h"
+#include "resourcepage.h"
 #include <QIcon>
 #include <QPushButton>
 #include <QJsonDocument>
@@ -83,6 +84,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->lastStep->setToolTip("返回上一步");
     ui->nextStep->setToolTip("展示网络图片");
     ui->saveCurrent->setToolTip("保存当前神经网络结构");
+    ui->showResources->setToolTip("相关网页资源");
 
     QMenu* themeMenu = new QMenu("切换主题", this);
     themeMenu->addAction("white", this, [=]() { applyTheme("white"); });
@@ -506,6 +508,27 @@ void MainWindow::on_saveCurrent_clicked(){
     currentNetworkSaved=1;
 }
 
+void MainWindow::on_showResources_clicked()
+{
+    // 使用堆栈分配而不是成员变量
+    ResourcePage *resourcePage = new ResourcePage();
+    resourcePage->setAttribute(Qt::WA_DeleteOnClose); // 确保关闭时自动删除
+
+    connect(resourcePage, &ResourcePage::returnToMain, this, [this, resourcePage]() {
+        this->show();
+        resourcePage->close(); // 确保关闭资源页面
+    });
+
+    //this->hide();
+    resourcePage->show();
+}
+
+void MainWindow::onReturnFromResource()
+{
+    resourcePage->hide();
+    this->show();
+}
+
 void MainWindow::handleJsonData(const QString &jsonStr) {
     QJsonDocument doc = QJsonDocument::fromJson(jsonStr.toUtf8());
     if (doc.isObject()) {
@@ -566,6 +589,43 @@ void MainWindow::showFloatingMessage(const QString& text)
     connect(group, &QPropertyAnimation::finished, label, &QLabel::deleteLater);
 }
 
+QJsonArray MainWindow::getCurrentNetworkAsJson()
+{
+    QJsonArray layerArray;
+
+    for (QGraphicsItem* item : scene->items()) {
+        // 筛选我们添加的图层（跳过辅助线等）
+        if (QGraphicsRectItem* rect = qgraphicsitem_cast<QGraphicsRectItem*>(item)) {
+            QVariant data = rect->data(0);  // 通常第 0 位是层数据
+
+            if (data.canConvert<QVariantMap>()) {
+                QVariantMap layerData = data.toMap();
+
+                QJsonObject layerObj;
+                layerObj["layerType"] = layerData["layerType"].toString();
+
+                // 保存位置信息
+                QPointF pos = rect->pos();
+                layerObj["x"] = int(pos.x());
+                layerObj["y"] = int(pos.y());
+
+                // 保存参数（如 neurons/activation）
+                QJsonObject paramsObj;
+                for (const QString& key : layerData.keys()) {
+                    if (key != "layerType") {
+                        paramsObj[key] = layerData[key].toString();
+                    }
+                }
+
+                layerObj["params"] = paramsObj;
+                layerArray.append(layerObj);
+            }
+        }
+    }
+
+    return layerArray;
+}
+
 void MainWindow::showSaveProgressBarMessage()
 {
     QWidget* popup = new QWidget(this);
@@ -617,6 +677,46 @@ void MainWindow::showSaveProgressBarMessage()
         }
     });
     timer->start(interval);
+}
+
+void MainWindow::loadNetworkFromJson(const QJsonArray& layers)
+{
+    showWarningMessage("调取该历史记录将会覆盖当前图层⚠️请先保存");
+    scene->clear();
+
+    for (const QJsonValue& value : layers) {
+        QJsonObject obj = value.toObject();
+
+        QString layerType = obj["layerType"].toString();
+        int x = obj["x"].toInt();
+        int y = obj["y"].toInt();
+
+        QMap<QString, QString> params;
+        QJsonObject paramObj = obj["params"].toObject();
+        for (const QString& key : paramObj.keys()) {
+            params[key] = paramObj[key].toString();
+        }
+
+        QGraphicsRectItem* item = new QGraphicsRectItem(0, 0, 100, 50);
+        item->setPos(x, y);
+
+        QColor color = Qt::gray;
+        if (layerType == "Dense") color = Qt::yellow;
+        else if (layerType == "Conv2D") color = Qt::blue;
+        else if (layerType == "Dropout") color = Qt::darkGray;
+        item->setBrush(color);
+
+        QVariantMap data;
+        data["layerType"] = layerType;
+        for (const QString& key : params.keys()) {
+            data[key] = params[key];
+        }
+        item->setData(0, data);
+
+        scene->addItem(item);
+    }
+
+    showFloatingMessage("✅ 网络结构已成功恢复！");
 }
 
 void MainWindow::showWarningMessage(const QString& text)
@@ -812,6 +912,7 @@ void MainWindow::applyTheme(const QString& theme)
     setupIconButton(ui->lastStep, ":/Icon/previous-"+theme+".png");
     setupIconButton(ui->nextStep, ":/Icon/turnback-"+theme+".png");
     setupIconButton(ui->saveCurrent, ":/Icon/save-"+theme+".png");
+    setupIconButton(ui->showResources,":/Icon/resource-"+theme+".png");
 
     if (!original) {
         showFloatingMessage("🎨 已切换主题：" + theme);
@@ -821,6 +922,7 @@ void MainWindow::applyTheme(const QString& theme)
 MainWindow::~MainWindow()
 {
     delete ui;
+    //delete resourcePage;
 }
 // 静态成员定义
 MainWindow* MainWindow::s_instance = nullptr;

@@ -2,14 +2,14 @@
 #include "backend.h"
 #include <QApplication>
 #include <QLocale>
-#include <QMetaType>
 #include <QTranslator>
 #include "networkvisualizer.h"
+#include "layerblockitem.h"
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    qRegisterMetaType<NeuralLayer>("NeuralLayer");
+
     QTranslator translator;
     const QStringList uiLanguages = QLocale::system().uiLanguages();
     for (const QString &locale : uiLanguages) {
@@ -20,15 +20,8 @@ int main(int argc, char *argv[])
         }
     }
 
-
     MainWindow w;
     MainWindow::setInstance(&w);
     w.show();
-    return a.exec();
-
-    /*
-    visualizer->createblockNetwork(layers);
-    visualizer->show();*/
-
     return a.exec();
 }

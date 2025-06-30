@@ -31,4 +31,3 @@ QString ColorThemeManager::getCurrentTheme() {
     return s_currentTheme;
 }
 
-

@@ -10,11 +10,11 @@ class NeuralLayer
 {
 public:
 
-    QString layerType;
-    int neurons = 1000;
-    int inputSize = 128;
-    QString activationFunction = "relu";
-    // 指向图形项的指针
+    QString layerType;//层定义
+    int neurons = 1000;//神经元数量
+    int inputSize = 128;//输入维度
+    QString activationFunction = "relu";//激活函数
+    //指向图形项的指针
     QGraphicsItem* graphicsItem = nullptr;
 
     NeuralLayer();
@@ -29,7 +29,7 @@ public:
     // 池化层特有参数
     int poolingSize = 5;
 
-    // LSTM /GPU/RNN 特有参数
+    // LSTM 或 RNN 特有参数
     int units = 64;
 
     // Dropout 层特有参数
@@ -37,5 +37,16 @@ public:
 };
 
 
+// // 接收网络结构数据接口
+// void receiveNetworkStructure(const QString& jsonStr);
+
+// // 返回生成程序接口
+// void returnGeneratedProgram(const QString& programJsonStr);
+
+// // 接收程序片段接口
+// void receiveProgramFragment(const QString& jsonStr);
+
+// // 返回网络结构接口
+// void returnNetworkStructure(const QString& networkStructureJsonStr);
 
 #endif // BACKEND_H

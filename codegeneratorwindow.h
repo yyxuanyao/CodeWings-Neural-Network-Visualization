@@ -70,45 +70,29 @@ public:
     void onSceneSelectionChanged();
 
 public slots:
-    void on_return_mainwindow_clicked();//
-    void on_generateCodeButton_clicked();//
-    void on_layersList_itemClicked(QListWidgetItem* item);//
-    void on_propertiesPanel_parametersUpdated(const QMap<QString, QString>& params);//
-    void deleteSelectedLayer();//
-    QColor colorForLayerType(const QString& layerType);//
-    void dropEvent(QDropEvent* event) override;//
-    void updateConnections();//
-    void addConnectionPoints(QGraphicsRectItem* layerItem);//
-    void startConnectionDrag(ConnectionPointItem* connectionPoint, QGraphicsSceneMouseEvent* event);//
-    void updateDragLine(const QPointF& pos);//
-    void endConnectionDrag(QGraphicsSceneMouseEvent* event);//
-    void createConnection(ConnectionPointItem* fromPoint, ConnectionPointItem* toPoint);//
-    void updateDragPath(const QPointF& pos);//
-    void updateLayerConnections(QGraphicsRectItem* layerItem);//
+    void on_return_mainwindow_clicked();
+    void on_generateCodeButton_clicked();
+    void on_layersList_itemClicked(QListWidgetItem* item);
+    void on_propertiesPanel_parametersUpdated(const QMap<QString, QString>& params);
+    void deleteSelectedLayer();
+    QColor colorForLayerType(const QString& layerType);
+    void dropEvent(QDropEvent* event) override;
     void on_copyCodeButton_clicked();
     void clearNetwork();
 
-protected:
-    void mouseMoveEvent(QMouseEvent* event) override;//
-    void mouseReleaseEvent(QMouseEvent* event) override;//
-    //bool eventFilter(QObject* watched, QEvent* event) override;
 
 private:
     Ui::CodeGeneratorWindow *ui;
-    QList<QSharedPointer<NeuralLayer>> m_layerStorage;
+    QList<QSharedPointer<NeuralLayer>> m_layerStorage;//新增
     NetworkVisualizer* m_networkVisualizer;
     QGraphicsView* m_builderView;
     QGraphicsScene* m_builderScene;
     QTextEdit* m_codeDisplay;
     PropertyPanel* m_propertyPanel;
-    QList<NeuralLayer*> m_layers;
+    QList<NeuralLayer> m_layers;
     QMap<QString, QString> params;
-    QList<QPair<ConnectionPointItem*,ConnectionPointItem*>> m_connections;
-    ConnectionPointItem* m_dragConnectionPoint;
-    QGraphicsPathItem* m_dragPath;
     bool isInCustomMode;
     QList<QGraphicsPathItem*> m_connectionItems;
-    QGraphicsLineItem* m_dragLine;
     QPushButton* m_copyCodeButton;
 };
 

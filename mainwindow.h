@@ -8,7 +8,7 @@
 #include "codegeneratorwindow.h"
 #include "networkvisualizer.h"
 #include "matrial.h"
-#include <QVector>
+#include "resourcepage.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -31,14 +31,18 @@ public:
         return instance;
     }*/
     static MainWindow* instance();
-    static void setInstance(MainWindow* window);//
+    static void setInstance(MainWindow* window);
     QString currentMode = "unselected";
     void showFloatingMessage(const QString& text);
+    QJsonArray getCurrentNetworkAsJson();
     void showSaveProgressBarMessage();
+    void loadNetworkFromJson(const QJsonArray& layers);
     void showWarningMessage(const QString& text);
+    void visualizeNetwork(const QJsonArray& layers);
     void onHistoryRecordClicked(int index);
     bool currentNetworkSaved;
-    void visualizeNetwork(const QJsonArray& layers);
+    QJsonArray loadHistoryByKey(const QString& key);
+    void showNetworkVisualization(const QJsonArray& layers);
     void clearPreviewArea();
     void applyTheme(const QString& theme);
     bool original;
@@ -54,6 +58,7 @@ private:
     void setupIconButton(QPushButton* button, const QString& iconPath, int size = 40);
     void setBackground(const QString& background);
     CodeGeneratorWindow* codegeneratorwindow;
+    ResourcePage *resourcePage;
     Matrial* matrialwindow;
     QGraphicsScene* scene;
     QJsonArray m_cachedNetworkJson;
@@ -69,6 +74,8 @@ private slots:
     void on_lastStep_clicked();
     void on_nextStep_clicked();
     void on_saveCurrent_clicked();
+    void on_showResources_clicked();
+    void onReturnFromResource();
 
 };
 #endif // MAINWINDOW_H
