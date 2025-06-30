@@ -42,7 +42,6 @@ void MainWindow::setBackground(const QString& background){
     QPalette palette=this->palette();
     palette.setBrush(QPalette::Window,QBrush(scalePixmap));
     this->setPalette(palette);
-    qDebug() << "背景图片是否加载成功：" << !pixmap.isNull();
 }
 
 MainWindow::MainWindow(QWidget *parent)
@@ -65,8 +64,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     QString tooltipStyle = R"(
     QToolTip {
-        background-color: #d0eaff;     /* 浅蓝 */
-        color: black;                  /* 黑字 */
+        background-color: #d0eaff;
+        color: black;
         border: 1px solid #007acc;
         padding: 6px;
         border-radius: 4px;
@@ -95,7 +94,7 @@ MainWindow::MainWindow(QWidget *parent)
     themeMenu->addAction("green", this, [=]() { applyTheme("green"); });
     themeMenu->addAction("grey", this, [=]() { applyTheme("grey"); });
 
-    ui->pageColor->setMenu(themeMenu);  // 设置菜单挂载到按钮
+    ui->pageColor->setMenu(themeMenu);
 
     QMenu* colorMenu = new QMenu(this);
 
@@ -170,8 +169,8 @@ void MainWindow::on_generateCode_clicked()
         codeWin = new CodeGeneratorWindow(this);
     }
 
-    this->hide();              // 隐藏主界面
-    codeWin->show();           // 显示弹窗
+    this->hide();
+    codeWin->show();
 
     imageGenerate = 0;
 }
@@ -210,18 +209,17 @@ void MainWindow::on_generateImage_clicked()
         return;
     }
 
-    // 调用你已有的神经网络图像生成逻辑（比如显示在主界面某个区域）
     NetworkVisualizer* visualizer = new NetworkVisualizer();
-    QString theme = ColorThemeManager::getCurrentTheme();  // 获取当前主题
+    QString theme = ColorThemeManager::getCurrentTheme();
     ColorThemeManager::setCurrentTheme(theme);
     if (currentMode=="BlockGenerate"){
         visualizer->createblockNetwork(layers);
-        visualizer->show();// 你来实现这个函数，基于 structure 展示图像
+        visualizer->show();
         ui->scrollAreavisualizer->setWidget(visualizer);
     }
     else if (currentMode=="NeuronitemGenerate"){
         visualizer->createNetwork(layers);
-        visualizer->show();// 你来实现这个函数，基于 structure 展示图像
+        visualizer->show();
         ui->scrollAreavisualizer->setWidget(visualizer);
     }
     else{
@@ -240,7 +238,6 @@ void MainWindow::on_checkHistory_clicked()
     QVBoxLayout* layout = new QVBoxLayout(dialog);
     QListWidget* list = new QListWidget(dialog);
 
-    // 添加历史记录条目
     int cnt = 0;
     for (int i = 0; i < historyCache.size(); ++i) {
         if (historySaved[i]){
@@ -252,12 +249,10 @@ void MainWindow::on_checkHistory_clicked()
 
     layout->addWidget(list);
 
-    // 加载按钮
     QPushButton* loadBtn = new QPushButton("加载选中记录");
     layout->addWidget(loadBtn);
     dialog->setLayout(layout);
 
-    // 连接加载逻辑
     connect(loadBtn, &QPushButton::clicked, this, [=]() {
         int index = list->currentRow();
         if (index < 0 || index >= historyCache.size()) return;
@@ -280,7 +275,6 @@ void MainWindow::on_checkHistory_clicked()
             }
         }
 
-        // 可视化加载
         NetworkVisualizer* visualizer = new NetworkVisualizer(this);
         visualizer->setMinimumSize(600, 400);
         QString theme = ColorThemeManager::getCurrentTheme();
@@ -299,7 +293,7 @@ void MainWindow::on_checkHistory_clicked()
         ui->scrollAreavisualizer->setWidget(visualizer);
         showFloatingMessage("✅ 已加载历史记录");
 
-        dialog->accept();  // 关闭弹窗
+        dialog->accept();
     });
 
     dialog->exec();
@@ -315,11 +309,9 @@ void MainWindow::onHistoryRecordClicked(int index){
         }
     }
 
-    // 创建 NetworkVisualizer 组件并展示
     NetworkVisualizer* visualizer = new NetworkVisualizer(this);
     visualizer->setMinimumSize(600, 400);  // 可调节尺寸
 
-    // 设置主题（如有）
     QString theme = ColorThemeManager::getCurrentTheme();
     ColorThemeManager::setCurrentTheme(theme);
 
@@ -340,7 +332,6 @@ void MainWindow::onHistoryRecordClicked(int index){
 
 void MainWindow::on_startNew_clicked()
 {
-    // 1. 弹出确认对话框
     if (!currentNetworkSaved){
         QMessageBox::StandardButton reply = QMessageBox::question(
             this,
@@ -374,7 +365,6 @@ void MainWindow::on_startNew_clicked()
         }
     }
 
-    // 2. 确认清空神经网络结构及图像
     if (codeWin) {
         codeWin->clearNetwork();
     }
@@ -510,16 +500,14 @@ void MainWindow::on_saveCurrent_clicked(){
 
 void MainWindow::on_showResources_clicked()
 {
-    // 使用堆栈分配而不是成员变量
     ResourcePage *resourcePage = new ResourcePage();
-    resourcePage->setAttribute(Qt::WA_DeleteOnClose); // 确保关闭时自动删除
+    resourcePage->setAttribute(Qt::WA_DeleteOnClose);
 
     connect(resourcePage, &ResourcePage::returnToMain, this, [this, resourcePage]() {
         this->show();
-        resourcePage->close(); // 确保关闭资源页面
+        resourcePage->close();
     });
 
-    //this->hide();
     resourcePage->show();
 }
 
@@ -533,12 +521,10 @@ void MainWindow::handleJsonData(const QString &jsonStr) {
     QJsonDocument doc = QJsonDocument::fromJson(jsonStr.toUtf8());
     if (doc.isObject()) {
         QJsonObject obj = doc.object();
-        // 假设obj表示网络结构，从中提取层信息
         QJsonArray layersArray = obj["layers"].toArray();
         for (const QJsonValue &layerValue : layersArray) {
             QJsonObject layerObj = layerValue.toObject();
             NeuralLayer layer = NeuralLayer::fromJsonObject(layerObj);
-            // 后续可对layer进行操作
         }
     }
 }
@@ -594,9 +580,8 @@ QJsonArray MainWindow::getCurrentNetworkAsJson()
     QJsonArray layerArray;
 
     for (QGraphicsItem* item : scene->items()) {
-        // 筛选我们添加的图层（跳过辅助线等）
         if (QGraphicsRectItem* rect = qgraphicsitem_cast<QGraphicsRectItem*>(item)) {
-            QVariant data = rect->data(0);  // 通常第 0 位是层数据
+            QVariant data = rect->data(0);
 
             if (data.canConvert<QVariantMap>()) {
                 QVariantMap layerData = data.toMap();
@@ -604,12 +589,10 @@ QJsonArray MainWindow::getCurrentNetworkAsJson()
                 QJsonObject layerObj;
                 layerObj["layerType"] = layerData["layerType"].toString();
 
-                // 保存位置信息
                 QPointF pos = rect->pos();
                 layerObj["x"] = int(pos.x());
                 layerObj["y"] = int(pos.y());
 
-                // 保存参数（如 neurons/activation）
                 QJsonObject paramsObj;
                 for (const QString& key : layerData.keys()) {
                     if (key != "layerType") {
@@ -734,13 +717,11 @@ void MainWindow::showWarningMessage(const QString& text)
         );
     label->adjustSize();
 
-    // 显示在中上位置
     int x = (width() - label->width()) / 2;
     int y = (height() - label->height()) / 10;
     label->move(x, y);
     label->show();
 
-    // 添加淡出动画
     QGraphicsOpacityEffect* effect = new QGraphicsOpacityEffect(label);
     label->setGraphicsEffect(effect);
     effect->setOpacity(1.0);
@@ -770,7 +751,6 @@ void MainWindow::visualizeNetwork(const QJsonArray& layers)
         QJsonObject obj = val.toObject();
         QString type = obj["layerType"].toString();
 
-        // 1. 图层框（灰框）
         QGraphicsRectItem* item = new QGraphicsRectItem(0, 0, 120, 60);
         item->setPos(x, y);
 
@@ -784,24 +764,19 @@ void MainWindow::visualizeNetwork(const QJsonArray& layers)
         item->setBrush(color);
         scene->addItem(item);
 
-        // 2. 类型文字
         QGraphicsTextItem* text = new QGraphicsTextItem(type);
         text->setPos(x + 10, y + 20);
         scene->addItem(text);
 
-        // 3. 准备下一层位置
         y += spacing;
     }
 
-    // 展示到画布
     QGraphicsView* view = new QGraphicsView(scene);
     view->setRenderHint(QPainter::Antialiasing);
     view->setMinimumHeight(400);
 
-    // 自适应缩放（可选）
     view->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
 
-    // 清空展示区并添加
     QLayout* layout = ui->previewArea->layout();
     if (!layout) {
         layout = new QVBoxLayout(ui->previewArea);
@@ -825,9 +800,9 @@ void MainWindow::clearPreviewArea()
     QLayoutItem* item;
     while ((item = layout->takeAt(0))) {
         if (item->widget()) {
-            item->widget()->deleteLater();  // 删除控件
+            item->widget()->deleteLater();
         }
-        delete item;  // 删除布局项
+        delete item;
     }
 }
 
@@ -868,8 +843,6 @@ void MainWindow::applyTheme(const QString& theme)
         btnColor = "#d0d0d0";
         btnHover = "#bbbbbb";
     }
-
-    // 设置全局样式
 
     qApp->setStyleSheet(QString(R"(
         QWidget {
@@ -924,7 +897,7 @@ MainWindow::~MainWindow()
     delete ui;
     //delete resourcePage;
 }
-// 静态成员定义
+
 MainWindow* MainWindow::s_instance = nullptr;
 
 MainWindow* MainWindow::instance() {

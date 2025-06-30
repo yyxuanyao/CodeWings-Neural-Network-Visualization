@@ -136,7 +136,6 @@ void Matrial::setupUI()
 void Matrial::loadImages()
 {
     // 从资源文件中加载图片路径
-    // 您需要根据实际的资源文件结构修改这些路径
     imagePaths << ":/images/neural_network_1.png"
                << ":/images/neural_network_2.png"
                << ":/images/neural_network_3.png"

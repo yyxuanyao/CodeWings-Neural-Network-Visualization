@@ -231,11 +231,9 @@ QString CodeGenerator::generateCodeFromJson(const QString& jsonStr) {
 }
 
 QString CodeGenerator::generatePyTorchCode(const QList<NeuralLayer*>& layers) {
-    // 1. 创建层的副本并排序（按纵坐标位置）
     QList<NeuralLayer*> sortedLayers = layers;
     std::sort(sortedLayers.begin(), sortedLayers.end(), LayerSorter());
 
-    // 2. 生成代码头
     QString code = "# PyTorch 神经网络自动生成代码\n";
     code += "import torch\n";
     code += "import torch.nn as nn\n";
@@ -244,9 +242,8 @@ QString CodeGenerator::generatePyTorchCode(const QList<NeuralLayer*>& layers) {
     code += "    def __init__(self):\n";
     code += "        super(Net, self).__init__()\n";
 
-    // 3. 生成层定义（按排序后的顺序）
     int layerIndex = 1;
-    bool addedFlatten = false; // 跟踪是否添加了展平层
+    bool addedFlatten = false;
 
     for (int i = 0; i < sortedLayers.size(); ++i) {
         const NeuralLayer* layer = sortedLayers[i];
@@ -254,12 +251,10 @@ QString CodeGenerator::generatePyTorchCode(const QList<NeuralLayer*>& layers) {
         if (layer->layerType == "Dense" || layer->layerType == "Input" ||
             layer->layerType == "Output" || layer->layerType == "Hidden") {
 
-            // 计算输入大小（前一层的神经元数量）
             int inputSize = 0;
             if (i > 0) {
                 const NeuralLayer* prevLayer = sortedLayers[i-1];
 
-                // 如果前一层是卷积层或池化层，需要添加展平层
                 if ((prevLayer->layerType == "Convolutional" ||
                      prevLayer->layerType == "MaxPooling" ||
                      prevLayer->layerType == "AvgPooling") && !addedFlatten) {
@@ -267,18 +262,15 @@ QString CodeGenerator::generatePyTorchCode(const QList<NeuralLayer*>& layers) {
                     addedFlatten = true;
                 }
 
-                // 设置输入大小
                 if (prevLayer->layerType == "Convolutional" ||
                     prevLayer->layerType == "MaxPooling" ||
                     prevLayer->layerType == "AvgPooling") {
-                    // 对于卷积/池化后的全连接层，输入大小需要手动计算
-                    // 这里简化处理，实际应用中需要更精确的计算
-                    inputSize = prevLayer->filters * 16; // 假设的特征图大小
+                    inputSize = prevLayer->filters * 16;
                 } else {
                     inputSize = prevLayer->neurons;
                 }
             } else {
-                inputSize = layer->inputSize; // 输入层使用预设的输入大小
+                inputSize = layer->inputSize;
             }
 
             code += QString("        self.fc%1 = nn.Linear(%2, %3)\n")
@@ -288,7 +280,7 @@ QString CodeGenerator::generatePyTorchCode(const QList<NeuralLayer*>& layers) {
             layerIndex++;
 
         } else if (layer->layerType == "Convolutional") {
-            int inChannels = 3; // 默认输入通道数
+            int inChannels = 3;
             if (i > 0) {
                 const NeuralLayer* prevLayer = sortedLayers[i-1];
                 if (prevLayer->layerType == "Convolutional") {
@@ -308,14 +300,14 @@ QString CodeGenerator::generatePyTorchCode(const QList<NeuralLayer*>& layers) {
             code += QString("        self.pool%1 = nn.MaxPool2d(kernel_size=%2, stride=%3)\n")
             .arg(layerIndex)
                 .arg(layer->poolingSize)
-                .arg(2); // 默认步长为2
+                .arg(2);
             layerIndex++;
 
         } else if (layer->layerType == "AvgPooling") {
             code += QString("        self.pool%1 = nn.AvgPool2d(kernel_size=%2, stride=%3)\n")
             .arg(layerIndex)
                 .arg(layer->poolingSize)
-                .arg(2); // 默认步长为2
+                .arg(2);
             layerIndex++;
 
         } else if (layer->layerType == "LSTM") {
@@ -377,14 +369,12 @@ QString CodeGenerator::generatePyTorchCode(const QList<NeuralLayer*>& layers) {
 
         } else if (layer->layerType == "Flatten") {
             code += "        self.flatten = nn.Flatten()\n";
-            // 不需要增加索引，因为Flatten不是参数化层
         }
     }
 
-    // 4. 生成前向传播函数（按排序后的顺序）
     code += "\n    def forward(self, x):\n";
     bool isFirstLayer = true;
-    addedFlatten = false; // 重置展平标志
+    addedFlatten = false;
 
     for (int i = 0; i < sortedLayers.size(); ++i) {
         const NeuralLayer* layer = sortedLayers[i];
@@ -392,7 +382,6 @@ QString CodeGenerator::generatePyTorchCode(const QList<NeuralLayer*>& layers) {
         if (layer->layerType == "Dense" || layer->layerType == "Input" ||
             layer->layerType == "Output" || layer->layerType == "Hidden") {
 
-            // 如果前一层是卷积层或池化层，需要先展平
             if (i > 0) {
                 const NeuralLayer* prevLayer = sortedLayers[i-1];
                 if ((prevLayer->layerType == "Convolutional" ||
@@ -487,7 +476,6 @@ QString CodeGenerator::generatePyTorchCode(const QList<NeuralLayer*>& layers) {
 
     code += "        return x\n\n";
 
-    // 5. 添加训练代码
     code += "# 模型实例化\n";
     code += "model = Net()\n\n";
 

@@ -36,17 +36,4 @@ public:
     float dropoutRate = 0.5f;
 };
 
-
-// // 接收网络结构数据接口
-// void receiveNetworkStructure(const QString& jsonStr);
-
-// // 返回生成程序接口
-// void returnGeneratedProgram(const QString& programJsonStr);
-
-// // 接收程序片段接口
-// void receiveProgramFragment(const QString& jsonStr);
-
-// // 返回网络结构接口
-// void returnNetworkStructure(const QString& networkStructureJsonStr);
-
 #endif // BACKEND_H

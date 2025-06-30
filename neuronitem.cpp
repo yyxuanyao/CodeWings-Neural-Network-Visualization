@@ -39,14 +39,11 @@ QVariant NeuronItem::itemChange(GraphicsItemChange change, const QVariant& value
 }
 
 void NeuronItem::updateColors() {
-    // 从全局主题获取颜色
     const ColorTheme& theme = ColorThemeManager::currentTheme();
 
-    // 设置神经元颜色
     setBrush(QBrush(theme.neuronFill));
-    setPen(QPen(theme.neuronBorder, 1));  // 边框宽度设为1
+    setPen(QPen(theme.neuronBorder, 1));
 
-    // 设置文本颜色
     m_label->setDefaultTextColor(theme.text);
 }
 

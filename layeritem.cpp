@@ -5,7 +5,7 @@ LayerItem::LayerItem(const QString& type, QGraphicsItem* parent)
     : QGraphicsItem(parent), layerType(type) {}
 
 QRectF LayerItem::boundingRect() const {
-    return QRectF(0, 0, 100, 50); // 固定尺寸
+    return QRectF(0, 0, 100, 50);
 }
 
 void LayerItem::paint(QPainter* painter, const QStyleOptionGraphicsItem*, QWidget*) {
